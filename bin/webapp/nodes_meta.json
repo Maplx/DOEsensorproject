@@ -1099,7 +1099,7 @@
         ],
         "power": "battery",
         "type": "SensorTag",
-        "parent": "00-12-4b-00-16-66-2f-83"
+        "parent": "gateway"
     },
     "00-12-4b-00-16-66-2c-07": {
         "gps": [
