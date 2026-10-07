@@ -1,0 +1,37 @@
+# ---- TI SDK installers: too large for GitHub (download from ti.com, see README) ----
+sdks/*.exe
+sdks/*.zip
+
+# ---- IAR / XDCtools build outputs (regenerated on every build) ----
+source/Projects/**/Obj/
+source/Projects/**/List/
+source/Projects/**/Exe/
+source/Projects/**/configPkg/
+source/Projects/**/src/
+source/Projects/**/*.dep
+source/Projects/**/*.pbd
+source/Projects/**/*.pbi
+source/Projects/**/*.xcl
+source/Projects/**/settings/*.dbgdt
+source/Projects/**/settings/*.wsdt
+source/Projects/**/settings/*.dni
+source/Projects/**/settings/*.crun
+source/Projects/**/settings/*.dnx
+source/Projects/**/settings/*.cspy.bat
+source/Projects/**/settings/*.cspy.ps1
+source/Projects/**/settings/*.driver.xcl
+source/Projects/**/settings/*.general.xcl
+source/Projects/**/*.log
+*.bak_before_soot
+
+# ---- Node.js ----
+bin/webapp/node_modules/
+npm-debug.log
+
+# ---- Local secrets: Google Maps API keys (copy maps_key.example.js -> maps_key.js) ----
+bin/webapp/iot/lib/maps_key.js
+
+# ---- OS / editor noise ----
+Thumbs.db
+.DS_Store
+~$*
