@@ -35,6 +35,12 @@
  * must not block that long. */
 #define SOOT_SAMPLE_COUNT   4
 
+/* Build-time kill switch for bisecting: 0 = never touch the soot chips
+ * (init reports failure, reads return ohms=0 / status NOT_INITIALIZED). */
+#ifndef SOOT_SENSOR_ENABLED
+#define SOOT_SENSOR_ENABLED 1
+#endif
+
 /* The bus lock is taken with the ADS1115 address; soot_resistance.c passes the
  * real target address on every transfer itself, so this value is only used
  * to satisfy SensorI2C_select(). */
@@ -61,6 +67,10 @@ bool SensorSoot_init(void)
   SootResistance_Status status;
 
   sootReady = false;
+
+#if !SOOT_SENSOR_ENABLED
+  return false;   /* bisect build: soot sensor disabled */
+#endif
 
   if (!SENSOR_SELECT())
   {
