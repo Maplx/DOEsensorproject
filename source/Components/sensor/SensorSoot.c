@@ -33,7 +33,7 @@
 /* Number of ADC conversions averaged per reading. soot_resistance.c defaults
  * to 16, which takes roughly 300 ms per report. Lower this if the CoAP task
  * must not block that long. */
-#define SOOT_SAMPLE_COUNT   16
+#define SOOT_SAMPLE_COUNT   4
 
 /* The bus lock is taken with the ADS1115 address; soot_resistance.c passes the
  * real target address on every transfer itself, so this value is only used
