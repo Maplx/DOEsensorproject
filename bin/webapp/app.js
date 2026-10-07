@@ -121,7 +121,7 @@ var SOOT_STATUS_NAMES = ["OK", "INVALID_ARGUMENT", "NOT_INITIALIZED", "DAC_I2C_E
    "ADC_I2C_ERROR", "ADC_TIMEOUT", "ADC_SATURATED", "BIAS_OUT_OF_RANGE", "OPEN_OR_OUT_OF_RANGE"];
 var pingIndex = 0;
 
-var sensors_start = false;
+var sensors_start = true;   // collect sensor data as soon as a node joins (was false: experiments enabled it via /sensors_start/1)
 var TRAFFIC_RATE = 1;
 
 var ideal_m2m_latency = {}
@@ -202,6 +202,7 @@ function old_id(eui64) {
 }
 
 const source_nodes = [15,29,37,22,25,45,3,4,9,20,32,47]
+const extra_sensor_nodes = ["00-12-4b-00-16-66-2b-02"]   // observed regardless of the 2023 preset list (soot-sensor node)
 
 //================================================================================
 // LISTENERS
@@ -2364,7 +2365,7 @@ function obs_start(id) {
          }
       }
       else {
-         if ((obs_sensor_list[id] == null || obs_sensor_list[id].deleted) && source_nodes.indexOf(old_id(id2eui64[id]))>-1 ) {
+         if ((obs_sensor_list[id] == null || obs_sensor_list[id].deleted) && (source_nodes.indexOf(old_id(id2eui64[id]))>-1 || extra_sensor_nodes.indexOf(id2eui64[id])>-1) ) {
             console.log("sensor observer for node " + id + " starts");
 
             if (obs_sensor_list[id] != null) {
