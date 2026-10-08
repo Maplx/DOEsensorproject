@@ -727,6 +727,21 @@ function static_schedule(node, parent) {
       (beacon_allocation_tracker[parent].linkCount)++;
    }
 
+   // ded CoAP TX. The node firmware (tsch-txm.c find_next_link) only transmits
+   // CoAP-tagged packets (sensor reports, ping replies) on a link whose option is
+   // exactly LINK_OPTION_TX_COAP; without one such link towards the parent the
+   // MAC drops them with NO_LINK and the gateway never gets an answer. The old
+   // deployment got these cells from schedule_preset.json, which only covers the
+   // 2023 topology, so allocate one for every joining node here.
+   ret = sch.find_empty_subslot([id2eui64[node], id2eui64[parent]], settings.scheduler.initial_uplink_period, { type: "uplink", layer: layer });
+   if (ret != null) {
+      var cell = { type: "uplink", layer: layer, sender: node, receiver: parent };
+      sch.add_subslot(ret.slot, ret.subslot, cell);
+      cell_list.push({ slot: ret.slot, subslot: ret.subslot, cell, link_option: LINK_OPTION_TX_COAP });
+      (beacon_allocation_tracker[node].linkCount)++;
+      (beacon_allocation_tracker[parent].linkCount)++;
+   }
+
    //ded RX
    ret = sch.find_empty_subslot([id2eui64[parent], id2eui64[node]], settings.scheduler.initial_downlink_period, { type: "downlink", layer: layer });
    if (ret != null) {
