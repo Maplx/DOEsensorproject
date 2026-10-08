@@ -203,6 +203,9 @@ function old_id(eui64) {
 
 const source_nodes = [15,29,37,22,25,45,3,4,9,20,32,47]
 const extra_sensor_nodes = ["00-12-4b-00-16-66-2b-02"]   // observed regardless of the 2023 preset list (soot-sensor node)
+// true: start the sensor observer for every node that joins (small lab setups);
+// false: only for source_nodes (2023 experiment subset) and extra_sensor_nodes.
+const observe_all_nodes = true
 
 //================================================================================
 // LISTENERS
@@ -2365,7 +2368,7 @@ function obs_start(id) {
          }
       }
       else {
-         if ((obs_sensor_list[id] == null || obs_sensor_list[id].deleted) && (source_nodes.indexOf(old_id(id2eui64[id]))>-1 || extra_sensor_nodes.indexOf(id2eui64[id])>-1) ) {
+         if ((obs_sensor_list[id] == null || obs_sensor_list[id].deleted) && (observe_all_nodes || source_nodes.indexOf(old_id(id2eui64[id]))>-1 || extra_sensor_nodes.indexOf(id2eui64[id])>-1) ) {
             console.log("sensor observer for node " + id + " starts");
 
             if (obs_sensor_list[id] != null) {

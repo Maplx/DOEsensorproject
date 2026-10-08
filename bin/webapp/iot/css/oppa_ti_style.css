@@ -470,6 +470,17 @@ span.icon:hover {
 .hum_inactive { background-position:0px -1400px;}
 .mot_ok { background-position:0px -1500px;}
 .mot_inactive { background-position:0px -1600px;}
+/* soot-resistance sensor: no sprite available, draw a round badge with an ohm sign */
+.soot_ok, .soot_inactive {
+  background-image: none;
+  border-radius: 50%;
+  color: #fff;
+  font: bold 17px/30px Arial, sans-serif;
+  text-align: center;
+}
+.soot_ok { background-color: #5cb531; }
+.soot_inactive { background-color: #c8c8c8; }
+.soot_ok:after, .soot_inactive:after { content: "\03A9"; }
 .act_on { background-position:0px -500px;}
 .act_off { background-position:0px -600px;}
 

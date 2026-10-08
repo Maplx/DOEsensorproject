@@ -276,6 +276,24 @@ iot.grid_ui_gateways = function() {
   return buf;
 };
 
+/* Summary of the soot-resistance reading for the list page.
+ * ok: true when the last report had status OK; text: short value for the label;
+ * title: tooltip with the raw status. Nodes without a soot board report
+ * NOT_INITIALIZED, nodes that never reported have no soot fields at all. */
+iot.soot_summary = function(sensors) {
+  if (sensors == null || sensors.soot_status == null || sensors.soot_status == -1) {
+    return { ok: false, text: 'N.A.', title: 'no soot reading yet' };
+  }
+  if (sensors.soot_status != 0) {
+    return { ok: false, text: 'n/a', title: 'soot sensor status: ' + (sensors.soot_status_text || sensors.soot_status) };
+  }
+  var ohms = sensors.soot_ohms, text;
+  if (ohms >= 1e6) text = (ohms / 1e6).toFixed(2) + ' MΩ';
+  else if (ohms >= 1e3) text = (ohms / 1e3).toFixed(1) + ' kΩ';
+  else text = ohms + ' Ω';
+  return { ok: true, text: text, title: ohms + ' ohm, status OK' };
+};
+
 iot.get_status = function(type, value) {
   switch (type) {
     /* eventually overall status needs to be replaced with a fallthrough block
@@ -299,6 +317,9 @@ iot.get_status = function(type, value) {
     case 'motion':
 	  if (value > 0) return "<div class='gridicon mot_ok'></div>";
 	  else return "<div class='gridicon mot_inactive'></div>";
+    case 'soot':
+	  if (value > 0) return "<div class='gridicon soot_ok'></div>";
+	  else return "<div class='gridicon soot_inactive'></div>";
     case 'actuator_light':
 	  if (value > 0) return "<div class='gridicon act_on'></div>";
 	  else return "<div class='gridicon act_off'></div>";
@@ -554,6 +575,9 @@ iot.grid_render = function() {
         buf += iot.get_status('humidity', iot.grid.nodes[i].sensor["hum"]);
         buf += '</td><td>';
         buf += iot.get_status('motion', iot.grid.nodes[i].sensor["motion"]);
+        buf += '</td><td>';
+        var soot = iot.soot_summary(iot.grid.nodes[i].sensors);
+        buf += iot.get_status('soot', soot.ok ? 1 : 0);
         buf += '</td></tr><tr><td class="grid_info">';
         buf += 'Temp.';
         buf += '</td><td class="grid_info">';
@@ -564,6 +588,8 @@ iot.grid_render = function() {
         buf += 'Humidity';
         buf += '</td><td class="grid_info">';
         buf += 'Motion';
+        buf += '</td><td class="grid_info" title="' + soot.title + '">';
+        buf += 'Soot ' + soot.text;
         buf += '</td></tr></table>';
         buf += "</td>"; /* sensors */
 
