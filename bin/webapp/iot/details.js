@@ -55,7 +55,22 @@ iot.sensor_series = {
 "accelx":new TimeSeries(),
 "accely":new TimeSeries(),
 "accelz":new TimeSeries(),
-"channel":new TimeSeries()
+"channel":new TimeSeries(),
+"soot_ohms":new TimeSeries()
+};
+
+// Human readable soot resistance: the node reports uint32 ohms, 0 = invalid.
+iot.format_soot = function(sensors) {
+  if (sensors == null || sensors.soot_status == null || sensors.soot_status == -1) {
+    return 'N.A.';
+  }
+  if (sensors.soot_status != 0) {
+    return (sensors.soot_status_text || ('error ' + sensors.soot_status));
+  }
+  var ohms = sensors.soot_ohms;
+  if (ohms >= 1e6) return (ohms / 1e6).toFixed(3) + ' M&Omega;';
+  if (ohms >= 1e3) return (ohms / 1e3).toFixed(2) + ' k&Omega;';
+  return ohms + ' &Omega;';
 };
 
 
@@ -230,6 +245,7 @@ iot.load_graphs = function() {
       $("#sensors_pressure").html('N.A.');
       $("#sensors_channel").html('N.A.');
       $("#sensors_accelerometer").html('N.A.');
+      $("#sensors_soot").html('N.A.');
 
       $("#actuator_light").html(iot.get_status('actuator_light', -1));
 
@@ -262,13 +278,17 @@ iot.load_graphs = function() {
         $("#actuator_status").html(iot.get_status('status',0))
 
         for(var name in iot.sensor_series){
-          iot.sensor_series[name].append(time, data.sensors[name]);
+          // nodes without a given sensor (e.g. no soot board) leave the field undefined
+          if (typeof data.sensors[name] === 'number') {
+            iot.sensor_series[name].append(time, data.sensors[name]);
+          }
         }
         $("#sensors_temperature").html(data.sensors.temp + ' (&deg;C)');
         $("#sensors_luminosity").html(data.sensors.lux + ' (lux)');
         $("#sensors_pressure").html(data.sensors.press + ' (hPa)');
         $("#sensors_humidity").html(data.sensors.rhum + ' (%)');
         $("#sensors_accelerometer").html(data.sensors.accelx + ' - ' + data.sensors.accely + ' - ' + data.sensors.accelz + ' (g)');
+        $("#sensors_soot").html(iot.format_soot(data.sensors));
 
         for(var name in iot.power_series){
           iot.power_series[name].append(time, data.sensors[name]);
@@ -338,6 +358,7 @@ iot.sensor_header = function() {
   buf += '<td id="sensors_heading_pressure" class="graph_button">PRESSURE</td>';
   buf += '<td id="sensors_heading_accelerometer" class="graph_button">ACCELEROMETER</td>';
   buf += '<td id="sensors_heading_channel" class="graph_button">CHANNEL</td>';
+  buf += '<td id="sensors_heading_soot" class="graph_button">SOOT RESISTANCE</td>';
   buf += '</tr>';
   buf += '<tr>';
   buf += '<td id="sensors_status">' + iot.get_status('status', 1) + '</td>';
@@ -347,6 +368,7 @@ iot.sensor_header = function() {
   buf += '<td id="sensors_pressure" class="graph_button"> N.A. ' + '</td>';
   buf += '<td id="sensors_accelerometer" class="graph_button"> N.A. ' + '</td>';
   buf += '<td id="sensors_channel" class="graph_button"> N.A. </td>';
+  buf += '<td id="sensors_soot" class="graph_button"> N.A. </td>';
   buf += '</tr>';
   buf += '</table>';
   
@@ -506,6 +528,9 @@ iot.bind_graph_buttons = function () {
       case 'channel':
           iot.sensor_chart.removeTimeSeries(iot.sensor_series.channel);
           break;
+      case 'soot':
+          iot.sensor_chart.removeTimeSeries(iot.sensor_series.soot_ohms);
+          break;
       case 'bat':
           iot.power_chart.removeTimeSeries(iot.power_series.bat);
           break;
@@ -576,6 +601,9 @@ iot.bind_graph_buttons = function () {
         break;
       case 'channel':
         iot.sensor_chart.addTimeSeries(iot.sensor_series.channel, { lineWidth: 1.5, strokeStyle: '#00ff00' });
+        break;
+      case 'soot':
+        iot.sensor_chart.addTimeSeries(iot.sensor_series.soot_ohms, { lineWidth: 1.5, strokeStyle: '#00ff00' });
         break;
 
       case 'bat':
